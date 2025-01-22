@@ -73,7 +73,7 @@ app.post('/proxy', validateRequest, async (req, res) => {
         lp_campaign_key: campaignKey,
       },
       mode: {
-        lp_test: true, // Set to false for production
+        lp_test: false, // Set to false for production
       },
       lead: {
         zip_code,
