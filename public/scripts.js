@@ -7,29 +7,38 @@ document.addEventListener('DOMContentLoaded', () => {
     if (validateStep2()) goToStep(3);
   });
   document.getElementById('step-2-back').addEventListener('click', () => goToStep(1));
-  document.getElementById('step-3-next').addEventListener('click', goToStep.bind(null, 4));
+  document.getElementById('step-3-next').addEventListener('click', () => goToStep(4));
   document.getElementById('step-3-back').addEventListener('click', () => goToStep(2));
   document.getElementById('step-4-back').addEventListener('click', () => goToStep(3));
   document.getElementById('submit-form').addEventListener('click', submitForm);
 });
 
+// Helper Functions for Navigation
 function goToStep(step) {
-  document.querySelectorAll('.form-section').forEach(section => section.classList.remove('active'));
-  document.getElementById(`step-${step}`).classList.add('active');
+  document.querySelectorAll('.form-section').forEach((section) =>
+    section.classList.remove('active')
+  );
+  const targetStep = document.getElementById(`step-${step}`);
+  if (targetStep) {
+    targetStep.classList.add('active');
+    if (step === 4) {
+      populateAffiliates(); // Populate affiliates on Step 4
+    }
+  }
 }
 
 // Helper Functions for Validation
 function isValidZipCode(zip) {
-  return /^\d{5}$/.test(zip);
+  return /^\d{5}$/.test(zip); // Ensure ZIP code is exactly 5 digits
 }
 
 function isValidDate(date) {
   const today = new Date();
-  return new Date(date) >= today;
+  return new Date(date) >= today; // Ensure the date is today or in the future
 }
 
 function isValidName(name) {
-  return /^[a-zA-Z\s\-]+$/.test(name);
+  return /^[a-zA-Z\s\-]+$/.test(name); // Allows letters, spaces, and hyphens
 }
 
 // Step 1 Validation
@@ -47,6 +56,7 @@ function validateStep1(formData) {
   return true;
 }
 
+// Step 2 Validation
 function validateStep2() {
   const firstName = document.getElementById('first_name').value.trim();
   const lastName = document.getElementById('last_name').value.trim();
@@ -62,9 +72,23 @@ function validateStep2() {
   return true;
 }
 
-function displayErrors(containerId, errors) {
+// Display Errors
+function displayErrors(containerId, messages) {
   const errorContainer = document.getElementById(containerId);
-  errorContainer.innerHTML = errors.map(error => `<p>${error}</p>`).join('');
+  if (!errorContainer) return;
+
+  // Clear previous errors
+  errorContainer.innerHTML = '';
+
+  // Append new error messages
+  messages.forEach((message) => {
+    if (message) {
+      const errorElement = document.createElement('p');
+      errorElement.textContent = message;
+      errorElement.style.color = 'red'; // Optional: style for visibility
+      errorContainer.appendChild(errorElement);
+    }
+  });
 }
 
 // Fetch Movers
@@ -77,7 +101,11 @@ async function fetchMovers() {
     moving_size: document.getElementById('moving_size').value.trim(),
   };
 
+  // Validate Step 1 Inputs
   if (!validateStep1(formData)) return;
+
+  // Clear previous errors
+  displayErrors('step-1-errors', []);
 
   try {
     const response = await fetch('/proxy', {
@@ -87,18 +115,100 @@ async function fetchMovers() {
     });
 
     const result = await response.json();
-    if (result.result === 'success') {
+
+    // Log response for debugging
+    console.log('API Response:', result);
+
+    if (result.result === 'success' && result.brands) {
+      // Populate affiliates
       affiliates.push(...result.brands);
+      console.log('Fetched Affiliates:', affiliates);
+
+      // Proceed to Step 2
       goToStep(2);
     } else {
+      // Display API error message and reason
       displayErrors('step-1-errors', [result.msg, result.reason]);
     }
   } catch (err) {
+    console.error('Error fetching movers:', err);
     displayErrors('step-1-errors', ['Failed to fetch movers.']);
   }
 }
 
+// Populate Affiliates (Step 4)
+function populateAffiliates() {
+  const affiliateListElement = document.getElementById('affiliates');
+  affiliateListElement.innerHTML = ''; // Clear previous content
+
+  if (affiliates.length > 0) {
+    affiliates.forEach((affiliate) => {
+      const listItem = document.createElement('li');
+      listItem.innerHTML = `
+        <div>
+          <label>
+            <input type="checkbox" name="affiliate" value="${affiliate.lp_brand_id}">
+            <strong>${affiliate.name}</strong>
+          </label>
+          ${
+            affiliate.logo_url
+              ? `<img src="${affiliate.logo_url}" alt="${affiliate.name}" style="width: 50px; margin-left: 10px;">`
+              : ''
+          }
+          <p style="margin-top: 5px; font-size: 0.9rem;">${affiliate.tcpa}</p>
+        </div>
+      `;
+      affiliateListElement.appendChild(listItem);
+    });
+  } else {
+    affiliateListElement.innerHTML = '<li>No affiliates available.</li>';
+  }
+}
+
+// Submit the Form
 async function submitForm() {
-  // Form submission logic
-  alert('Form Submitted!');
+  const selectedAffiliates = Array.from(document.querySelectorAll('input[name="affiliate"]:checked'))
+    .map((checkbox) => checkbox.value);
+
+  if (selectedAffiliates.length === 0) {
+    alert('Please select at least one affiliate to proceed.');
+    return;
+  }
+
+  const data = {
+    zip_code: document.getElementById('zip_code').value.trim(),
+    move_to_zip_code: document.getElementById('move_to_zip_code').value.trim(),
+    move_to_state: document.getElementById('move_to_state').value.trim(),
+    move_date: document.getElementById('move_date').value.trim(),
+    moving_size: document.getElementById('moving_size').value.trim(),
+    first_name: document.getElementById('first_name').value.trim(),
+    last_name: document.getElementById('last_name').value.trim(),
+    phone_number: document.getElementById('phone_number').value.trim(),
+    email_address: document.getElementById('email_address').value.trim(),
+    selected_affiliates: selectedAffiliates,
+  };
+
+  if (!document.getElementById('terms').checked) {
+    alert('You must agree to the terms of service to continue.');
+    return;
+  }
+
+  try {
+    const response = await fetch('/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to submit form');
+    }
+
+    const result = await response.json();
+    alert('Form submitted successfully!');
+    console.log(result);
+  } catch (error) {
+    console.error('Error:', error);
+    alert('An error occurred while submitting the form.');
+  }
 }
