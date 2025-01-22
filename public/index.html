@@ -4,83 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Multi-Step Moving Form</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 500px;
-      margin: 50px auto;
-      padding: 0 15px;
-    }
-
-    .form-section {
-      display: none;
-    }
-
-    .form-section.active {
-      display: block;
-    }
-
-    label {
-      font-weight: bold;
-      margin-top: 10px;
-      display: block;
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      margin-bottom: 20px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-    }
-
-    .checkbox-container input {
-      width: auto;
-      margin-right: 10px;
-    }
-
-    .affiliate-list {
-      margin-top: 20px;
-    }
-
-    .affiliate-list h4 {
-      margin-bottom: 10px;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Loading Indicator -->
+  <div id="loading-indicator" style="display: none;">Loading...</div>
 
   <!-- Step 1 -->
   <div class="form-section active" id="step-1">
     <h2>Step 1: Get Moving Quotes</h2>
     <label for="zip_code">ZIP Code:</label>
-    <input type="text" id="zip_code" placeholder="Enter your ZIP code" required>
+    <input type="text" id="zip_code" placeholder="Enter your ZIP code">
     <label for="move_to_zip_code">Move To ZIP Code:</label>
-    <input type="text" id="move_to_zip_code" placeholder="Enter destination ZIP code" required>
+    <input type="text" id="move_to_zip_code" placeholder="Enter destination ZIP code">
     <label for="move_to_state">Move To State:</label>
-    <input type="text" id="move_to_state" placeholder="Enter destination state" required>
+    <input type="text" id="move_to_state" placeholder="Enter destination state">
     <label for="move_date">Move Date:</label>
-    <input type="date" id="move_date" required>
+    <input type="date" id="move_date">
     <label for="moving_size">Moving Size:</label>
-    <select id="moving_size" required>
+    <select id="moving_size">
       <option value="">Select Size</option>
       <option value="1 Bedroom">1 Bedroom</option>
       <option value="2 Bedroom">2 Bedroom</option>
@@ -88,180 +30,52 @@
       <option value="4 Bedroom">4 Bedroom</option>
       <option value="5 Bedroom">5 Bedroom</option>
     </select>
-    <button type="button" onclick="fetchMovers()">Next</button>
+    <div id="step-1-errors" class="error-message" aria-live="polite"></div>
+    <button type="button" id="step-1-next">Next</button>
   </div>
 
   <!-- Step 2 -->
   <div class="form-section" id="step-2">
     <h2>Step 2: Your Details</h2>
     <label for="first_name">First Name:</label>
-    <input type="text" id="first_name" placeholder="Enter your first name" required>
+    <input type="text" id="first_name" placeholder="Enter your first name">
     <label for="last_name">Last Name:</label>
-    <input type="text" id="last_name" placeholder="Enter your last name" required>
-    <button type="button" onclick="goToStep(3)">Next</button>
+    <input type="text" id="last_name" placeholder="Enter your last name">
+    <div id="step-2-errors" class="error-message" aria-live="polite"></div>
+    <button type="button" id="step-2-next">Next</button>
+    <button type="button" id="step-2-back">Back</button>
   </div>
 
   <!-- Step 3 -->
   <div class="form-section" id="step-3">
     <h2>Step 3: Almost Done</h2>
     <label for="phone_number">Phone Number:</label>
-    <input type="tel" id="phone_number" placeholder="Enter your phone number" required>
+    <input type="tel" id="phone_number" placeholder="Enter your phone number">
     <label for="email_address">Email Address:</label>
-    <input type="email" id="email_address" placeholder="Enter your email address" required>
-    <button type="button" onclick="goToStep(4)">Next</button>
+    <input type="email" id="email_address" placeholder="Enter your email address">
+    <div id="step-3-errors" class="error-message" aria-live="polite"></div>
+    <button type="button" id="step-3-next">Next</button>
+    <button type="button" id="step-3-back">Back</button>
   </div>
 
   <!-- Step 4 -->
   <div class="form-section" id="step-4">
     <h2>Terms of Service</h2>
     <p>
-      Based on your moving details you may be contacted by licensed movers via an automated dialing system, SMS text messaging, or pre-recorded message to the above phone number. By submitting this form you agree to receive phone calls, SMS text messages, and emails from several moving companies to receive free moving quotes. You can unsubscribe from any phone calls, SMS, or emails anytime. By pressing submit I also agree to the Privacy Policy.
+      By submitting this form, you agree to receive phone calls, SMS text messages, and emails from several moving companies to receive free moving quotes. By pressing submit, you also agree to the Privacy Policy.
     </p>
     <div class="checkbox-container">
-      <input type="checkbox" id="terms" required>
+      <input type="checkbox" id="terms">
       <label for="terms">I agree to the terms of service</label>
     </div>
-
     <div class="affiliate-list" id="affiliate-list">
       <h4>Selected Movers:</h4>
       <ul id="affiliates"></ul>
     </div>
-
-    <button type="button" onclick="submitForm()">Submit</button>
+    <button type="button" id="submit-form">Submit</button>
+    <button type="button" id="step-4-back">Back</button>
   </div>
 
-  <script>
-    const affiliates = [];
-
-    // Navigate between steps
-    function goToStep(step) {
-      document.querySelectorAll('.form-section').forEach((section) =>
-        section.classList.remove('active')
-      );
-      const targetStep = document.getElementById(`step-${step}`);
-      if (targetStep) {
-        targetStep.classList.add('active');
-        if (step === 4) {
-          populateAffiliates(); // Populate affiliates on Step 4
-        }
-      }
-    }
-
-    // Fetch movers (Step 1)
-    async function fetchMovers() {
-      const formData = {
-        zip_code: document.getElementById('zip_code').value.trim(),
-        move_to_zip_code: document.getElementById('move_to_zip_code').value.trim(),
-        move_to_state: document.getElementById('move_to_state').value.trim(),
-        move_date: document.getElementById('move_date').value.trim(),
-        moving_size: document.getElementById('moving_size').value.trim(),
-        long_distance_custom: true,
-      };
-
-      if (Object.values(formData).some((field) => !field)) {
-        alert('Please fill out all required fields.');
-        return;
-      }
-
-      try {
-        const response = await fetch('http://localhost:3000/proxy', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch movers');
-        }
-
-        const result = await response.json();
-        console.log('Response:', result);
-
-        if (result.result === 'success' && result.brands) {
-          affiliates.push(...result.brands);
-          alert('Movers loaded successfully! Proceed to the next step.');
-          goToStep(2);
-        } else {
-          alert(result.msg || 'No movers found.');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while fetching movers.');
-      }
-    }
-
-    // Populate affiliates on Step 4
-    function populateAffiliates() {
-      const affiliateListElement = document.getElementById('affiliates');
-      affiliateListElement.innerHTML = '';
-
-      if (affiliates.length > 0) {
-        affiliates.forEach((affiliate) => {
-          const listItem = document.createElement('li');
-          listItem.innerHTML = `
-            <div>
-              <label>
-                <input type="checkbox" name="affiliate" value="${affiliate.lp_brand_id}">
-                <strong>${affiliate.name}</strong>
-              </label>
-              ${affiliate.logo_url ? `<img src="${affiliate.logo_url}" alt="${affiliate.name}" style="width: 50px; margin-left: 10px;">` : ''}
-              <p style="margin-top: 5px; font-size: 0.9rem;">${affiliate.tcpa}</p>
-            </div>
-          `;
-          affiliateListElement.appendChild(listItem);
-        });
-      } else {
-        affiliateListElement.innerHTML = '<li>No affiliates available.</li>';
-      }
-    }
-
-    // Submit the form (Final Step)
-    async function submitForm() {
-      const selectedAffiliates = Array.from(document.querySelectorAll('input[name="affiliate"]:checked'))
-        .map((checkbox) => checkbox.value);
-
-      if (selectedAffiliates.length === 0) {
-        alert('Please select at least one affiliate to proceed.');
-        return;
-      }
-
-      const data = {
-        zip_code: document.getElementById('zip_code').value.trim(),
-        move_to_zip_code: document.getElementById('move_to_zip_code').value.trim(),
-        move_to_state: document.getElementById('move_to_state').value.trim(),
-        move_date: document.getElementById('move_date').value.trim(),
-        moving_size: document.getElementById('moving_size').value.trim(),
-        first_name: document.getElementById('first_name').value.trim(),
-        last_name: document.getElementById('last_name').value.trim(),
-        phone_number: document.getElementById('phone_number').value.trim(),
-        email_address: document.getElementById('email_address').value.trim(),
-        selected_affiliates: selectedAffiliates, // Include selected affiliates
-      };
-
-      if (!document.getElementById('terms').checked) {
-        alert('You must agree to the terms of service to continue.');
-        return;
-      }
-
-      try {
-        const response = await fetch('http://localhost:3000/proxy', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to submit form');
-        }
-
-        const result = await response.json();
-        alert('Form submitted successfully!');
-        console.log(result);
-      } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while submitting the form.');
-      }
-    }
-  </script>
+  <script src="scripts.js"></script>
 </body>
 </html>

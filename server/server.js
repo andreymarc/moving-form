@@ -3,14 +3,21 @@ import cors from 'cors';
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 import path from 'path';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { body, validationResult } from 'express-validator';
+
 const __dirname = path.resolve();
-
-
 
 dotenv.config(); // Load environment variables from .env
 
+// Validate environment variables
+if (!process.env.CAMPAIGN_ID || !process.env.CAMPAIGN_KEY || !process.env.API_URL) {
+  throw new Error('Missing required environment variables: CAMPAIGN_ID, CAMPAIGN_KEY, or API_URL');
+}
+
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const campaignId = process.env.CAMPAIGN_ID;
 const campaignKey = process.env.CAMPAIGN_KEY;
 const apiUrl = process.env.API_URL;
@@ -18,11 +25,38 @@ const apiUrl = process.env.API_URL;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(helmet());
+
+// Rate Limiting Middleware
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { error: 'Too many requests, please try again later.' },
+});
+app.use('/proxy', limiter);
+
+// Serve Static Files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Validation Middleware for /proxy endpoint
+const validateRequest = [
+  body('zip_code').isPostalCode('US').withMessage('Invalid ZIP code.'),
+  body('move_to_zip_code').isPostalCode('US').withMessage('Invalid Move To ZIP code.'),
+  body('move_to_state').notEmpty().withMessage('Move to state is required.'),
+  body('move_date').isISO8601().toDate().withMessage('Invalid move date.'),
+  body('moving_size').notEmpty().withMessage('Moving size is required.'),
+];
 
 // Proxy Endpoint
-app.post('/proxy', async (req, res) => {
+app.post('/proxy', validateRequest, async (req, res) => {
+  // Check validation results
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   try {
-    // Extracting request data from the embedded script
+    // Extracting request data
     const {
       zip_code,
       move_to_zip_code,
@@ -31,11 +65,6 @@ app.post('/proxy', async (req, res) => {
       moving_size,
       long_distance_custom,
     } = req.body;
-
-    // Validate required fields
-    if (!zip_code || !move_to_zip_code || !move_to_state || !move_date || !moving_size) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
 
     // Construct the payload for the API
     const payload = {
@@ -76,16 +105,13 @@ app.post('/proxy', async (req, res) => {
     const data = await response.json();
     console.log('API Response:', data);
 
-    // Return the API response to the client (embedded script)
+    // Return the API response to the client
     res.json(data);
   } catch (error) {
     console.error('Server Error:', error);
     res.status(500).json({ error: 'Failed to fetch movers', message: error.message });
   }
 });
-
-app.use(express.static(path.join(__dirname, 'public')));
-
 
 // Start Server
 app.listen(PORT, () => {
