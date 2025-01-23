@@ -141,13 +141,17 @@ function populateAffiliates() {
   const affiliateListElement = document.getElementById('affiliates');
   affiliateListElement.innerHTML = ''; // Clear previous content
 
-  if (affiliates.length > 0) {
-    affiliates.forEach((affiliate) => {
+// Limit the number of affiliates displayed 
+
+const limitedAffiliates = affiliates.slice(0,4);
+
+  if (limitedAffiliates.length > 0) {
+    limitedAffiliates.forEach((affiliate) => {
       const listItem = document.createElement('li');
       listItem.innerHTML = `
         <div>
           <label>
-            <input type="checkbox" name="affiliate" value="${affiliate.lp_brand_id}">
+            <input type="checkbox" name="affiliate" value="${affiliate.lp_brand_id}" checked>
             <strong>${affiliate.name}</strong>
           </label>
           ${
@@ -188,11 +192,16 @@ async function submitForm() {
     selected_affiliates: selectedAffiliates,
   };
 
-  if (!document.getElementById('terms').checked) {
-    alert('You must agree to the terms of service to continue.');
+//   if (!document.getElementById('terms').checked) {
+//     alert('You must agree to the terms of service to continue.');
+//     return;
+//   }
+
+  const disclaimerAccepted = document.getElementById('disclaimer').checked;
+  if (!disclaimerAccepted) {
+    alert('You must accept the terms of service and consent to be contacted to continue.');
     return;
   }
-
   try {
     const response = await fetch('/proxy', {
       method: 'POST',
@@ -205,8 +214,12 @@ async function submitForm() {
     }
 
     const result = await response.json();
-    alert('Form submitted successfully!');
+    //alert('Form submitted successfully!');
     console.log(result);
+
+    // Redirect to thank you page
+    window.location.href = '/thank-you.html';
+    
   } catch (error) {
     console.error('Error:', error);
     alert('An error occurred while submitting the form.');

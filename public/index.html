@@ -1,133 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multi-Step Moving Form</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <!-- Loading Indicator -->
-  <div id="loading-indicator" style="display: none;">Loading...</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multi-Step Moving Form</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" style="display: none">Loading...</div>
 
-  <!-- Step 1 -->
-  <div class="form-section active" id="step-1">
-    <h2>Step 1: Get Moving Quotes</h2>
-    <label for="zip_code">ZIP Code:</label>
-    <input type="text" id="zip_code" placeholder="Enter your ZIP code">
-    <label for="move_to_zip_code">Move To ZIP Code:</label>
-    <input type="text" id="move_to_zip_code" placeholder="Enter destination ZIP code">
-    <label for="move_to_state">Move To State:</label>
-    <select id="move_to_state">
-      <option value="">Select State</option>
-      <option value="AL">AL</option>
-      <option value="AK">AK</option>
-      <option value="AZ">AZ</option>
-      <option value="AR">AR</option>
-      <option value="CA">CA</option>
-      <option value="CO">CO</option>
-      <option value="CT">CT</option>
-      <option value="DE">DE</option>
-      <option value="FL">FL</option>
-      <option value="GA">GA</option>
-      <option value="HI">HI</option>
-      <option value="ID">ID</option>
-      <option value="IL">IL</option>
-      <option value="IN">IN</option>
-      <option value="IA">IA</option>
-      <option value="KS">KS</option>
-      <option value="KY">KY</option>
-      <option value="LA">LA</option>
-      <option value="ME">ME</option>
-      <option value="MD">MD</option>
-      <option value="MA">MA</option>
-      <option value="MI">MI</option>
-      <option value="MN">MN</option>
-      <option value="MS">MS</option>
-      <option value="MO">MO</option>
-      <option value="MT">MT</option>
-      <option value="NE">NE</option>
-      <option value="NV">NV</option>
-      <option value="NH">NH</option>
-      <option value="NJ">NJ</option>
-      <option value="NM">NM</option>
-      <option value="NY">NY</option>
-      <option value="NC">NC</option>
-      <option value="ND">ND</option>
-      <option value="OH">OH</option>
-      <option value="OK">OK</option>
-      <option value="OR">OR</option>
-      <option value="PA">PA</option>
-      <option value="RI">RI</option>
-      <option value="SC">SC</option>
-      <option value="SD">SD</option>
-      <option value="TN">TN</option>
-      <option value="TX">TX</option>
-      <option value="UT">UT</option>
-      <option value="VT">VT</option>
-      <option value="VA">VA</option>
-      <option value="WA">WA</option>
-      <option value="WV">WV</option>
-      <option value="WI">WI</option>
-      <option value="WY">WY</option>
-    </select>
-    <label for="move_date">Move Date:</label>
-    <input type="date" id="move_date">
-    <label for="moving_size">Moving Size:</label>
-    <select id="moving_size">
-      <option value="">Select Size</option>
-      <option value="1 Bedroom">1 Bedroom</option>
-      <option value="2 Bedroom">2 Bedroom</option>
-      <option value="3 Bedroom">3 Bedroom</option>
-      <option value="4 Bedroom">4 Bedroom</option>
-      <option value="5 Bedroom">5 Bedroom</option>
-    </select>
-    <div id="step-1-errors" class="error-message" aria-live="polite"></div>
-    <button type="button" id="step-1-next">Next</button>
-  </div>
-
-  <!-- Step 2 -->
-  <div class="form-section" id="step-2">
-    <h2>Step 2: Your Details</h2>
-    <label for="first_name">First Name:</label>
-    <input type="text" id="first_name" placeholder="Enter your first name">
-    <label for="last_name">Last Name:</label>
-    <input type="text" id="last_name" placeholder="Enter your last name">
-    <div id="step-2-errors" class="error-message" aria-live="polite"></div>
-    <button type="button" id="step-2-next">Next</button>
-    <button type="button" id="step-2-back">Back</button>
-  </div>
-
-  <!-- Step 3 -->
-  <div class="form-section" id="step-3">
-    <h2>Step 3: Almost Done</h2>
-    <label for="phone_number">Phone Number:</label>
-    <input type="tel" id="phone_number" placeholder="Enter your phone number">
-    <label for="email_address">Email Address:</label>
-    <input type="email" id="email_address" placeholder="Enter your email address">
-    <div id="step-3-errors" class="error-message" aria-live="polite"></div>
-    <button type="button" id="step-3-next">Next</button>
-    <button type="button" id="step-3-back">Back</button>
-  </div>
-
-  <!-- Step 4 -->
-  <div class="form-section" id="step-4">
-    <h2>Terms of Service</h2>
-    <p>
-      By submitting this form, you agree to receive phone calls, SMS text messages, and emails from several moving companies to receive free moving quotes. By pressing submit, you also agree to the Privacy Policy.
-    </p>
-    <div class="checkbox-container">
-      <input type="checkbox" id="terms">
-      <label for="terms">I agree to the terms of service</label>
+    <!-- Step 1 -->
+    <div class="form-section active" id="step-1">
+      <h2>Step 1: Get Moving Quotes</h2>
+      <label for="zip_code">ZIP Code:</label>
+      <input type="text" id="zip_code" placeholder="Enter your ZIP code" />
+      <label for="move_to_zip_code">Move To ZIP Code:</label>
+      <input
+        type="text"
+        id="move_to_zip_code"
+        placeholder="Enter destination ZIP code"
+      />
+      <label for="move_to_state">Move To State:</label>
+      <select id="move_to_state">
+        <option value="">Select State</option>
+        <option value="AL">AL</option>
+        <option value="AK">AK</option>
+        <option value="AZ">AZ</option>
+        <option value="AR">AR</option>
+        <option value="CA">CA</option>
+        <option value="CO">CO</option>
+        <option value="CT">CT</option>
+        <option value="DE">DE</option>
+        <option value="FL">FL</option>
+        <option value="GA">GA</option>
+        <option value="HI">HI</option>
+        <option value="ID">ID</option>
+        <option value="IL">IL</option>
+        <option value="IN">IN</option>
+        <option value="IA">IA</option>
+        <option value="KS">KS</option>
+        <option value="KY">KY</option>
+        <option value="LA">LA</option>
+        <option value="ME">ME</option>
+        <option value="MD">MD</option>
+        <option value="MA">MA</option>
+        <option value="MI">MI</option>
+        <option value="MN">MN</option>
+        <option value="MS">MS</option>
+        <option value="MO">MO</option>
+        <option value="MT">MT</option>
+        <option value="NE">NE</option>
+        <option value="NV">NV</option>
+        <option value="NH">NH</option>
+        <option value="NJ">NJ</option>
+        <option value="NM">NM</option>
+        <option value="NY">NY</option>
+        <option value="NC">NC</option>
+        <option value="ND">ND</option>
+        <option value="OH">OH</option>
+        <option value="OK">OK</option>
+        <option value="OR">OR</option>
+        <option value="PA">PA</option>
+        <option value="RI">RI</option>
+        <option value="SC">SC</option>
+        <option value="SD">SD</option>
+        <option value="TN">TN</option>
+        <option value="TX">TX</option>
+        <option value="UT">UT</option>
+        <option value="VT">VT</option>
+        <option value="VA">VA</option>
+        <option value="WA">WA</option>
+        <option value="WV">WV</option>
+        <option value="WI">WI</option>
+        <option value="WY">WY</option>
+      </select>
+      <label for="move_date">Move Date:</label>
+      <input type="date" id="move_date" />
+      <label for="moving_size">Moving Size:</label>
+      <select id="moving_size">
+        <option value="">Select Size</option>
+        <option value="1 Bedroom">1 Bedroom</option>
+        <option value="2 Bedroom">2 Bedroom</option>
+        <option value="3 Bedroom">3 Bedroom</option>
+        <option value="4 Bedroom">4 Bedroom</option>
+        <option value="5 Bedroom">5 Bedroom</option>
+      </select>
+      <div id="step-1-errors" class="error-message" aria-live="polite"></div>
+      <button type="button" id="step-1-next">Next</button>
     </div>
-    <div class="affiliate-list" id="affiliate-list">
-      <h4>Selected Movers:</h4>
-      <ul id="affiliates"></ul>
-    </div>
-    <button type="button" id="submit-form">Submit</button>
-    <button type="button" id="step-4-back">Back</button>
-  </div>
 
-  <script src="scripts.js"></script>
-</body>
+    <!-- Step 2 -->
+    <div class="form-section" id="step-2">
+      <h2>Step 2: Your Details</h2>
+      <label for="first_name">First Name:</label>
+      <input type="text" id="first_name" placeholder="Enter your first name" />
+      <label for="last_name">Last Name:</label>
+      <input type="text" id="last_name" placeholder="Enter your last name" />
+      <div id="step-2-errors" class="error-message" aria-live="polite"></div>
+      <button type="button" id="step-2-next">Next</button>
+      <button type="button" id="step-2-back">Back</button>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="form-section" id="step-3">
+      <h2>Step 3: Almost Done</h2>
+      <label for="phone_number">Phone Number:</label>
+      <input
+        type="tel"
+        id="phone_number"
+        placeholder="Enter your phone number"
+      />
+      <label for="email_address">Email Address:</label>
+      <input
+        type="email"
+        id="email_address"
+        placeholder="Enter your email address"
+      />
+      <div id="step-3-errors" class="error-message" aria-live="polite"></div>
+      <button type="button" id="step-3-next">Next</button>
+      <button type="button" id="step-3-back">Back</button>
+    </div>
+
+    <!-- Step 4 -->
+    <!-- Step 4 -->
+    <div class="form-section" id="step-4">
+      <h2>Terms of Service</h2>
+      <div class="terms-box">
+        <p>
+          Based on your moving details you may be contacted by licensed movers
+          via an automated dialing system, sms text messaging, or pre-recorded
+          message to the above phone number. By submitting this form you agree
+          to receive phone calls, sms text messages and emails from several
+          moving companies to receive free moving quotes. You can unsubscribe
+          from any phone calls, sms or emails anytime. I give Allied Van Lines
+          and North American Van Lines consent to use automated telephone
+          dialing technology to call and/or use SMS text messages at the phone
+          number provided including a wireless number for telemarking purposes.
+          I understand consent is not a condition of purchase Allied's or North
+          American Van Lines services. By pressing submit I also agree to the
+          Allied Privacy Policy and North American Privacy Policy.
+        </p>
+      </div>
+      <div class="checkbox-container">
+        <input type="checkbox" id="disclaimer" />
+        <label for="disclaimer"
+          >I agree to the terms of service and consent to be contacted as
+          described above</label
+        >
+      </div>
+      <div class="affiliate-list" id="affiliate-list">
+        <h4>Selected Movers:</h4>
+        <ul id="affiliates"></ul>
+      </div>
+      <button type="button" id="submit-form">Submit</button>
+      <button type="button" id="step-4-back">Back</button>
+    </div>
+
+    <script src="scripts.js"></script>
+  </body>
 </html>

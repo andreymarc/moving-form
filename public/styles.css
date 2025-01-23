@@ -18,7 +18,9 @@ label {
   display: block;
 }
 
-input, select, button {
+input,
+select,
+button {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
@@ -48,4 +50,33 @@ button:hover {
   text-align: center;
   font-size: 1rem;
   color: #007bff;
+}
+
+.terms-box {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 20px;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+.terms-box p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.checkbox-container {
+  margin-bottom: 20px;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.checkbox-container label {
+  display: inline;
+  font-weight: normal;
 }
