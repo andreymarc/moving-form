@@ -171,11 +171,20 @@ const limitedAffiliates = affiliates.slice(0,4);
 
 // Submit the Form
 async function submitForm() {
+  // Clear previous errors
+  displayErrors('step-4-errors', []);
+
   const selectedAffiliates = Array.from(document.querySelectorAll('input[name="affiliate"]:checked'))
     .map((checkbox) => checkbox.value);
 
   if (selectedAffiliates.length === 0) {
-    alert('Please select at least one affiliate to proceed.');
+    displayErrors('step-4-errors', ['Please select at least one affiliate to proceed.']);
+    return;
+  }
+
+  const disclaimerAccepted = document.getElementById('disclaimer').checked;
+  if (!disclaimerAccepted) {
+    displayErrors('step-4-errors', ['You must accept the terms of service and consent to be contacted to continue.']);
     return;
   }
 
@@ -192,16 +201,6 @@ async function submitForm() {
     selected_affiliates: selectedAffiliates,
   };
 
-//   if (!document.getElementById('terms').checked) {
-//     alert('You must agree to the terms of service to continue.');
-//     return;
-//   }
-
-  const disclaimerAccepted = document.getElementById('disclaimer').checked;
-  if (!disclaimerAccepted) {
-    alert('You must accept the terms of service and consent to be contacted to continue.');
-    return;
-  }
   try {
     const response = await fetch('/proxy', {
       method: 'POST',
@@ -214,7 +213,6 @@ async function submitForm() {
     }
 
     const result = await response.json();
-    //alert('Form submitted successfully!');
     console.log(result);
 
     // Redirect to thank you page
@@ -222,6 +220,6 @@ async function submitForm() {
     
   } catch (error) {
     console.error('Error:', error);
-    alert('An error occurred while submitting the form.');
+    displayErrors('step-4-errors', ['An error occurred while submitting the form. Please try again.']);
   }
 }
