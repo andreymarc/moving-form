@@ -12,9 +12,11 @@ const __dirname = path.resolve();
 dotenv.config(); // Load environment variables from .env
 
 // Validate environment variables
-if (!process.env.CAMPAIGN_ID || !process.env.CAMPAIGN_KEY || !process.env.API_URL) {
-  throw new Error('Missing required environment variables: CAMPAIGN_ID, CAMPAIGN_KEY, or API_URL');
-}
+['CAMPAIGN_ID', 'CAMPAIGN_KEY', 'API_URL'].forEach((envVar) => {
+  if (!process.env[envVar]) {
+    throw new Error(`Missing required environment variable: ${envVar}`);
+  }
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,9 +25,21 @@ const campaignKey = process.env.CAMPAIGN_KEY;
 const apiUrl = process.env.API_URL;
 
 // Middleware
-app.use(cors());
+app.use(cors()); // Allow all origins for now, can be restricted for production
 app.use(express.json());
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        frameAncestors: ["'self'", "*"], // Allows embedding in iframes
+        objectSrc: ["'none'"],
+        scriptSrc: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 // Rate Limiting Middleware
 const limiter = rateLimit({
@@ -99,7 +113,11 @@ app.post('/proxy', validateRequest, async (req, res) => {
     // Check API response status
     if (!response.ok) {
       console.error(`API Error: ${response.statusText}`);
-      return res.status(502).json({ error: 'API request failed', details: response.statusText });
+      return res.status(502).json({
+        error: 'API request failed',
+        details: response.statusText,
+        status: response.status,
+      });
     }
 
     const data = await response.json();
@@ -109,7 +127,11 @@ app.post('/proxy', validateRequest, async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error('Server Error:', error);
-    res.status(500).json({ error: 'Failed to fetch movers', message: error.message });
+    res.status(500).json({
+      error: 'Failed to fetch movers',
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    });
   }
 });
 
