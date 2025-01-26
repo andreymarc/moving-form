@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Multi-Step Moving Form</title>
     <link rel="stylesheet" href="styles.css" />
-
   </head>
   <body>
     <!-- Loading Indicator -->
     <div id="loading-indicator">Loading...</div>
-    
+
     <!-- Step 1 -->
     <div class="form-section active" id="step-1">
       <h2>Get Moving Quotes Today!</h2>
@@ -77,8 +76,13 @@
         <option value="WY">WY</option>
       </select>
       <label for="move_date">Move Date:</label>
-      <input type="date" id="move_date" name="move_date" placeholder="Select a date" required/>
-      
+      <input
+        type="date"
+        id="move_date"
+        name="move_date"
+        placeholder="Select a date"
+        required
+      />
 
       <label for="moving_size">Moving Size:</label>
       <select id="moving_size">
@@ -129,28 +133,31 @@
     <!-- Step 4 -->
     <div class="form-section" id="step-4">
       <h2>Terms of Service</h2>
-      <div class="terms-box">
-        <p>
-          Based on your moving details you may be contacted by licensed movers
-          via an automated dialing system, sms text messaging, or pre-recorded
-          message to the above phone number. By submitting this form you agree
-          to receive phone calls, sms text messages and emails from several
-          moving companies to receive free moving quotes. You can unsubscribe
-          from any phone calls, sms or emails anytime. I give Allied Van Lines
-          and North American Van Lines consent to use automated telephone
-          dialing technology to call and/or use SMS text messages at the phone
-          number provided including a wireless number for telemarking purposes.
-          I understand consent is not a condition of purchase Allied's or North
-          American Van Lines services. By pressing submit I also agree to the
-          Allied Privacy Policy and North American Privacy Policy.
-        </p>
+      <div class="terms-container">
+        <div class="terms-box">
+          <p>
+            Based on your moving details you may be contacted by licensed movers
+            via an automated dialing system, sms text messaging, or pre-recorded
+            message to the above phone number. By submitting this form you agree
+            to receive phone calls, sms text messages and emails from several
+            moving companies to receive free moving quotes. You can unsubscribe
+            from any phone calls, sms or emails anytime. I give Allied Van Lines
+            and North American Van Lines consent to use automated telephone
+            dialing technology to call and/or use SMS text messages at the phone
+            number provided including a wireless number for telemarking
+            purposes. I understand consent is not a condition of purchase
+            Allied's or North American Van Lines services. By pressing submit I
+            also agree to the Allied Privacy Policy and North American Privacy
+            Policy.
+          </p>
+        </div>
       </div>
       <div class="checkbox-container">
         <input type="checkbox" id="disclaimer" />
-        <label for="disclaimer"
-          >I agree to the terms of service and consent to be contacted as
-          described above</label
-        >
+        <label for="disclaimer">
+          I agree to the terms of service and consent to be contacted as
+          described above
+        </label>
       </div>
       <div class="affiliate-list" id="affiliate-list">
         <h4>Selected Movers:</h4>

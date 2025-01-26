@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('step-3-next').addEventListener('click', () => {
     console.log('Step 3 Next button clicked');
-    goToStep(4);
+    if (validateStep3()) goToStep(4);
   });
 
   document.getElementById('step-3-back').addEventListener('click', () => {
@@ -106,6 +106,14 @@ function isValidName(name) {
   return /^[a-zA-Z\s\-]+$/.test(name); // Allows letters, spaces, and hyphens
 }
 
+function isValidPhoneNumber(phone) {
+  return /^\d{10}$/.test(phone.replace(/\D/g, '')); // Ensure 10 digits after removing non-digits
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); // Basic email validation
+}
+
 // Step 1 Validation
 function validateStep1(formData) {
   const errors = [];
@@ -128,11 +136,33 @@ function validateStep2() {
   const lastName = document.getElementById('last_name').value.trim();
   const errors = [];
 
-  if (!isValidName(firstName)) errors.push('First name should only contain letters, spaces, or hyphens.');
-  if (!isValidName(lastName)) errors.push('Last name should only contain letters, spaces, or hyphens.');
+  if (!firstName) errors.push('First name is required.');
+  else if (!isValidName(firstName)) errors.push('First name should only contain letters, spaces, or hyphens.');
+  
+  if (!lastName) errors.push('Last name is required.');
+  else if (!isValidName(lastName)) errors.push('Last name should only contain letters, spaces, or hyphens.');
 
   if (errors.length > 0) {
     displayErrors('step-2-errors', errors);
+    return false;
+  }
+  return true;
+}
+
+// Step 3 Validation
+function validateStep3() {
+  const phoneNumber = document.getElementById('phone_number').value.trim();
+  const emailAddress = document.getElementById('email_address').value.trim();
+  const errors = [];
+
+  if (!phoneNumber) errors.push('Phone number is required.');
+  else if (!isValidPhoneNumber(phoneNumber)) errors.push('Please enter a valid phone number.');
+
+  if (!emailAddress) errors.push('Email address is required.');
+  else if (!isValidEmail(emailAddress)) errors.push('Please enter a valid email address.');
+
+  if (errors.length > 0) {
+    displayErrors('step-3-errors', errors);
     return false;
   }
   return true;
