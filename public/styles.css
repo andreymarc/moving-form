@@ -6,6 +6,7 @@ body {
 }
 
 .form-section {
+  background-color: white;
   display: none;
 }
 
@@ -19,25 +20,79 @@ label {
 }
 
 input,
-select,
-button {
+select {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 5px;
+  box-sizing: border-box;
+  height: 40px;
 }
 
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+  background-repeat: no-repeat;
+  background-position-x: 98%;
+  background-position-y: 50%;
+}
+
+/* Common styles for both buttons */
 button {
+  padding: 10px 20px;
+  margin: 10px 5px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  width: auto;
+}
+
+/* Styles for the "Next" button */
+button[id$="-next"],
+#submit-form {
   background-color: #007bff;
   color: white;
   border: none;
-  cursor: pointer;
+  float: right;
 }
 
-button:hover {
+button[id$="-next"]:hover,
+#submit-form:hover {
   background-color: #0056b3;
+}
+
+/* Styles for the "Back" button */
+button[id$="-back"] {
+  background-color: white;
+  color: #007bff;
+  border: 1px solid #007bff;
+  float: left;
+}
+
+button[id$="-back"]:hover {
+  background-color: #f8f9fa;
+}
+
+/* Clear float */
+.form-section::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Optional: Add icons to buttons */
+button[id$="-next"]::after,
+#submit-form::after {
+  content: " →";
+}
+
+button[id$="-back"]::before {
+  content: "← ";
 }
 
 .error-message {
@@ -47,9 +102,7 @@ button:hover {
 }
 
 #loading-indicator {
-  text-align: center;
-  font-size: 1rem;
-  color: #007bff;
+  display: none;
 }
 
 .terms-box {
@@ -74,9 +127,80 @@ button:hover {
 
 .checkbox-container input[type="checkbox"] {
   margin-right: 10px;
+  width: auto;
+  height: auto;
 }
 
 .checkbox-container label {
   display: inline;
   font-weight: normal;
+}
+
+input[type="date"]::before,
+input#move_date::before {
+  content: attr(placeholder);
+  position: absolute;
+  color: #999;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+input[type="date"]:focus::before,
+input[type="date"]:valid::before,
+input#move_date:focus::before,
+input#move_date:valid::before {
+  display: none;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input#move_date::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  color: transparent;
+  background: transparent;
+}
+
+/* thank-you */
+
+.thank-you-container {
+  text-align: center;
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 40px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.thank-you-container h2 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.thank-you-container p {
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.thank-you-container .button {
+  display: inline-block;
+  background-color: #007bff;
+  color: white;
+  padding: 12px 24px;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  font-weight: bold;
+}
+
+.thank-you-container .button:hover {
+  background-color: #0056b3;
 }

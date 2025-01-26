@@ -12,7 +12,7 @@ const __dirname = path.resolve();
 dotenv.config(); // Load environment variables from .env
 
 // Validate environment variables
-['CAMPAIGN_ID', 'CAMPAIGN_KEY', 'API_URL'].forEach((envVar) => {
+['CAMPAIGN_ID', 'CAMPAIGN_KEY', 'API_URL', 'USE_MOCK_API'].forEach((envVar) => {
   if (!process.env[envVar]) {
     throw new Error(`Missing required environment variable: ${envVar}`);
   }
@@ -23,6 +23,8 @@ const PORT = process.env.PORT || 3000;
 const campaignId = process.env.CAMPAIGN_ID;
 const campaignKey = process.env.CAMPAIGN_KEY;
 const apiUrl = process.env.API_URL;
+const USE_MOCK_API = process.env.USE_MOCK_API === 'true';
+console.log('USE_MOCK_API:', USE_MOCK_API);
 
 // Middleware
 app.use(cors()); // Allow all origins for now, can be restricted for production
@@ -35,6 +37,8 @@ app.use(
         frameAncestors: ["'self'", "*"], // Allows embedding in iframes
         objectSrc: ["'none'"],
         scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
       },
     },
     crossOriginEmbedderPolicy: false,
@@ -87,7 +91,7 @@ app.post('/proxy', validateRequest, async (req, res) => {
         lp_campaign_key: campaignKey,
       },
       mode: {
-        lp_test: false, // Set to false for production
+        lp_test: USE_MOCK_API, // Uses the environment variable
       },
       lead: {
         zip_code,
@@ -101,30 +105,55 @@ app.post('/proxy', validateRequest, async (req, res) => {
 
     console.log('Payload Sent to API:', JSON.stringify(payload, null, 2));
 
-    // Make the API request
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    let responseData;
 
-    // Check API response status
-    if (!response.ok) {
-      console.error(`API Error: ${response.statusText}`);
-      return res.status(502).json({
-        error: 'API request failed',
-        details: response.statusText,
-        status: response.status,
-      });
+    if (USE_MOCK_API) {
+      // Simulate API response
+      responseData = {
+        results: 'success',
+        brands: [
+          {
+            lp_brand_id: 'brand1',
+            name: 'Moving Company 1',
+            logo_url: 'https://example.com/logo1.png',
+            tcpa: 'TCPA disclaimer for Company 1'
+          },
+          {
+            lp_brand_id: 'brand2',
+            name: 'Moving Company 2',
+            logo_url: 'https://example.com/logo2.png',
+            tcpa: 'TCPA disclaimer for Company 2'
+          },
+          // Add more simulated brands as needed
+        ]
+      };
+      console.log('Using Mock API Response:', responseData);
+    } else {
+      // Make the actual API request 
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      }); 
+    
+      // Check API response status
+      if (!response.ok) {
+        console.error(`API Error: ${response.statusText}`);
+        return res.status(502).json({
+          error: 'API request failed',
+          details: response.statusText,
+          status: response.status,
+        });
+      }
+
+      responseData = await response.json();
+      console.log('API Response:', responseData);
     }
 
-    const data = await response.json();
-    console.log('API Response:', data);
-
     // Return the API response to the client
-    res.json(data);
+    res.json(responseData);
   } catch (error) {
     console.error('Server Error:', error);
     res.status(500).json({

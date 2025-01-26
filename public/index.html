@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Multi-Step Moving Form</title>
     <link rel="stylesheet" href="styles.css" />
+
   </head>
   <body>
     <!-- Loading Indicator -->
-    <div id="loading-indicator" style="display: none">Loading...</div>
-
+    <div id="loading-indicator">Loading...</div>
+    
     <!-- Step 1 -->
     <div class="form-section active" id="step-1">
-      <h2>Step 1: Get Moving Quotes</h2>
+      <h2>Get Moving Quotes Today!</h2>
       <label for="zip_code">ZIP Code:</label>
       <input type="text" id="zip_code" placeholder="Enter your ZIP code" />
       <label for="move_to_zip_code">Move To ZIP Code:</label>
@@ -76,7 +77,7 @@
         <option value="WY">WY</option>
       </select>
       <label for="move_date">Move Date:</label>
-      <input type="date" id="move_date" />
+      <input type="date" id="move_date" name="move_date" placeholder="Click to select a data" required/>
       <label for="moving_size">Moving Size:</label>
       <select id="moving_size">
         <option value="">Select Size</option>
