@@ -4,32 +4,21 @@ console.log('Scripts loaded');
 // Native date input initialization function
 function initializeDateInput() {
   const moveDateInput = document.getElementById('move_date');
-  if (moveDateInput) {
-    moveDateInput.type = 'text'; // Change to text input
-    moveDateInput.readOnly = true; // Prevent keyboard input
-    const today = new Date().toISOString().split('T')[0];
-    
-    // Create a hidden date input
-    const hiddenDateInput = document.createElement('input');
-    hiddenDateInput.type = 'date';
-    hiddenDateInput.id = 'hidden_move_date';
-    hiddenDateInput.style.display = 'none';
-    hiddenDateInput.min = today;
-    moveDateInput.parentNode.insertBefore(hiddenDateInput, moveDateInput.nextSibling);
+  const hiddenDateInput = document.getElementById('hidden_move_date');
 
-    // Open calendar on click
-    moveDateInput.addEventListener('click', () => {
-      hiddenDateInput.showPicker();
+  if (moveDateInput && hiddenDateInput) {
+    const today = new Date().toISOString().split('T')[0];
+    hiddenDateInput.min = today;
+    moveDateInput.min = today;
+
+    moveDateInput.addEventListener('click', function(event) {
+      event.preventDefault();
+      hiddenDateInput.focus();
+      hiddenDateInput.click();
     });
 
-    // Update text input when date is selected
-    hiddenDateInput.addEventListener('change', () => {
-      const selectedDate = new Date(hiddenDateInput.value);
-      moveDateInput.value = selectedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
+    hiddenDateInput.addEventListener('change', function() {
+      moveDateInput.value = this.value;
     });
 
     console.log('Date input initialized successfully');
@@ -53,26 +42,32 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     console.error('Step 1 Next button not found');
   }
+
   document.getElementById('step-2-next').addEventListener('click', () => {
     console.log('Step 2 Next button clicked');
     if (validateStep2()) goToStep(3);
   });
+
   document.getElementById('step-2-back').addEventListener('click', () => {
     console.log('Step 2 Back button clicked');
     goToStep(1);
   });
+
   document.getElementById('step-3-next').addEventListener('click', () => {
     console.log('Step 3 Next button clicked');
     goToStep(4);
   });
+
   document.getElementById('step-3-back').addEventListener('click', () => {
     console.log('Step 3 Back button clicked');
     goToStep(2);
   });
+
   document.getElementById('step-4-back').addEventListener('click', () => {
     console.log('Step 4 Back button clicked');
     goToStep(3);
   });
+
   document.getElementById('submit-form').addEventListener('click', submitForm);
 });
 
@@ -101,8 +96,7 @@ function isValidZipCode(zip) {
 }
 
 function isValidDate(date) {
-  const hiddenDateInput = document.getElementById('hidden_move_date');
-  const selectedDate = new Date(hiddenDateInput.value);
+  const selectedDate = new Date(date);
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
   return selectedDate >= today;
@@ -119,6 +113,7 @@ function validateStep1(formData) {
   if (!isValidZipCode(formData.move_to_zip_code)) errors.push('Invalid destination ZIP Code.');
   if (!formData.move_to_state) errors.push('State is required.');
   if (!isValidDate(formData.move_date)) errors.push('Move date must be in the future.');
+  if (!formData.moving_size) errors.push('Moving size is required.');
 
   if (errors.length > 0) {
     displayErrors('step-1-errors', errors);
@@ -169,7 +164,7 @@ async function fetchMovers() {
     zip_code: document.getElementById('zip_code').value.trim(),
     move_to_zip_code: document.getElementById('move_to_zip_code').value.trim(),
     move_to_state: document.getElementById('move_to_state').value.trim(),
-    move_date: document.getElementById('hidden_move_date').value.trim(), // Use hidden input
+    move_date: document.getElementById('move_date').value.trim(),
     moving_size: document.getElementById('moving_size').value.trim(),
   };
 
@@ -270,7 +265,7 @@ async function submitForm() {
     zip_code: document.getElementById('zip_code').value.trim(),
     move_to_zip_code: document.getElementById('move_to_zip_code').value.trim(),
     move_to_state: document.getElementById('move_to_state').value.trim(),
-    move_date: document.getElementById('hidden_move_date').value.trim(), // Use hidden input
+    move_date: document.getElementById('move_date').value.trim(),
     moving_size: document.getElementById('moving_size').value.trim(),
     first_name: document.getElementById('first_name').value.trim(),
     last_name: document.getElementById('last_name').value.trim(),
