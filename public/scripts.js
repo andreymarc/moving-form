@@ -1,77 +1,37 @@
 const affiliates = [];
 console.log('Scripts loaded');
 
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM fully loaded and parsed');
+  initializeDateInput();
+  setupEventListeners();
+});
+
 // Native date input initialization function
 function initializeDateInput() {
   const moveDateInput = document.getElementById('move_date');
-  const hiddenDateInput = document.getElementById('hidden_move_date');
-
-  if (moveDateInput && hiddenDateInput) {
+  if (moveDateInput) {
     const today = new Date().toISOString().split('T')[0];
-    hiddenDateInput.min = today;
     moveDateInput.min = today;
-
-    moveDateInput.addEventListener('click', function(event) {
-      event.preventDefault();
-      hiddenDateInput.focus();
-      hiddenDateInput.click();
-    });
-
-    hiddenDateInput.addEventListener('change', function() {
-      moveDateInput.value = this.value;
-    });
-
-    console.log('Date input initialized successfully');
   } else {
-    console.error('Move date input not found');
+    console.log('Move date input not found');
   }
 }
 
-// Navigation
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOM fully loaded and parsed');
-
-  initializeDateInput();
-
-  const step1NextButton = document.getElementById('step-1-next');
-  if (step1NextButton) {
-    step1NextButton.addEventListener('click', () => {
-      console.log('Step 1 Next button clicked');
-      fetchMovers();
-    });
-  } else {
-    console.error('Step 1 Next button not found');
-  }
-
+function setupEventListeners() {
+  document.getElementById('step-1-next').addEventListener('click', () => fetchMovers());
   document.getElementById('step-2-next').addEventListener('click', () => {
-    console.log('Step 2 Next button clicked');
     if (validateStep2()) goToStep(3);
   });
-
-  document.getElementById('step-2-back').addEventListener('click', () => {
-    console.log('Step 2 Back button clicked');
-    goToStep(1);
-  });
-
+  document.getElementById('step-2-back').addEventListener('click', () => goToStep(1));
   document.getElementById('step-3-next').addEventListener('click', () => {
-    console.log('Step 3 Next button clicked');
     if (validateStep3()) goToStep(4);
   });
-
-  document.getElementById('step-3-back').addEventListener('click', () => {
-    console.log('Step 3 Back button clicked');
-    goToStep(2);
-  });
-
-  document.getElementById('step-4-back').addEventListener('click', () => {
-    console.log('Step 4 Back button clicked');
-    goToStep(3);
-  });
-
+  document.getElementById('step-3-back').addEventListener('click', () => goToStep(2));
+  document.getElementById('step-4-back').addEventListener('click', () => goToStep(3));
   document.getElementById('submit-form').addEventListener('click', submitForm);
-});
+}
 
-// Helper Functions for Navigation
 function goToStep(step) {
   console.log(`Attempting to go to step ${step}`);
   document.querySelectorAll('.form-section').forEach((section) => {
@@ -90,28 +50,27 @@ function goToStep(step) {
   }
 }
 
-// Helper Functions for Validation
-function isValidZipCode(zip) {
-  return /^\d{5}$/.test(zip); // Ensure ZIP code is exactly 5 digits
+// Validation helper functions
+function isValidZipCode(zipCode) {
+  return /^\d{5}(-\d{4})?$/.test(zipCode);
 }
 
-function isValidDate(date) {
-  const selectedDate = new Date(date);
+function isValidDate(dateString) {
+  const selectedDate = new Date(dateString);
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
-  return selectedDate >= today;
+  return selectedDate > today;
 }
 
 function isValidName(name) {
-  return /^[a-zA-Z\s\-]+$/.test(name); // Allows letters, spaces, and hyphens
+  return /^[a-zA-Z\s-]+$/.test(name);
 }
 
-function isValidPhoneNumber(phone) {
-  return /^\d{10}$/.test(phone.replace(/\D/g, '')); // Ensure 10 digits after removing non-digits
+function isValidPhoneNumber(phoneNumber) {
+  return /^\d{10}$/.test(phoneNumber.replace(/\D/g, ''));
 }
 
 function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); // Basic email validation
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 // Step 1 Validation
@@ -222,17 +181,21 @@ async function fetchMovers() {
     // Log response for debugging
     console.log('API Response:', result);
 
-    if (result.results === 'success' && result.brands) {
-      // Populate affiliates
-      affiliates.length = 0; // Clear existing affiliates
-      affiliates.push(...result.brands);
-      console.log('Fetched Affiliates:', affiliates);
+    if (result.results === 'success') {
+      // If brands are available, populate them
+      if (result.brands) {
+        affiliates.length = 0; // Clear existing affiliates
+        affiliates.push(...result.brands);
+        console.log('Fetched Affiliates:', affiliates);
+      } else {
+        console.log('No brands data received from API');
+      }
 
-      // Proceed to Step 2
+      // Proceed to Step 2 regardless of brands data
       goToStep(2);
     } else {
       // Display API error message and reason
-      displayErrors('step-1-errors', [result.msg, result.reason]);
+      displayErrors('step-1-errors', [result.msg || 'Unknown error occurred', result.reason || '']);
     }
   } catch (err) {
     console.error('Error fetching movers:', err);
@@ -245,10 +208,10 @@ function populateAffiliates() {
   const affiliateListElement = document.getElementById('affiliates');
   affiliateListElement.innerHTML = ''; // Clear previous content
 
-  // Limit the number of affiliates displayed 
-  const limitedAffiliates = affiliates.slice(0, 4);
+  if (affiliates && affiliates.length > 0) {
+    // Limit the number of affiliates displayed 
+    const limitedAffiliates = affiliates.slice(0, 4);
 
-  if (limitedAffiliates.length > 0) {
     limitedAffiliates.forEach((affiliate) => {
       const listItem = document.createElement('li');
       listItem.innerHTML = `
@@ -268,7 +231,11 @@ function populateAffiliates() {
       affiliateListElement.appendChild(listItem);
     });
   } else {
-    affiliateListElement.innerHTML = '<li>No affiliates available.</li>';
+    // If affiliates are not available, hide or remove the affiliates section
+    const affiliatesSection = document.getElementById('affiliate-list');
+    if (affiliatesSection) {
+      affiliatesSection.style.display = 'none';
+    }
   }
 }
 

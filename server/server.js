@@ -24,7 +24,9 @@ const campaignId = process.env.CAMPAIGN_ID;
 const campaignKey = process.env.CAMPAIGN_KEY;
 const apiUrl = process.env.API_URL;
 const USE_MOCK_API = process.env.USE_MOCK_API === 'true';
+const USE_AFFILIATES = process.env.USE_AFFILIATES === 'true';
 console.log('USE_MOCK_API:', USE_MOCK_API);
+console.log('USE_AFFILIATES:', USE_AFFILIATES);
 
 // Middleware
 app.use(cors()); // Allow all origins for now, can be restricted for production
@@ -66,6 +68,103 @@ const validateRequest = [
 ];
 
 // Proxy Endpoint
+// app.post('/proxy', validateRequest, async (req, res) => {
+//   // Check validation results
+//   const errors = validationResult(req);
+//   if (!errors.isEmpty()) {
+//     return res.status(400).json({ errors: errors.array() });
+//   }
+
+//   try {
+//     // Extracting request data
+//     const {
+//       zip_code,
+//       move_to_zip_code,
+//       move_to_state,
+//       move_date,
+//       moving_size,
+//       long_distance_custom,
+//     } = req.body;
+
+//     // Construct the payload for the API
+//     const payload = {
+//       auth: {
+//         lp_campaign_id: campaignId,
+//         lp_campaign_key: campaignKey,
+//       },
+//       mode: {
+//         lp_test: USE_MOCK_API, // Uses the environment variable
+//       },
+//       lead: {
+//         zip_code,
+//         move_date,
+//         move_to_state,
+//         move_to_zip_code,
+//         moving_size,
+//         long_distance_custom: long_distance_custom ?? false,
+//       },
+//     };
+
+//     console.log('Payload Sent to API:', JSON.stringify(payload, null, 2));
+
+//     let responseData;
+
+//     if (USE_MOCK_API) {
+//       // Simulate API response
+//       responseData = {
+//         results: 'success',
+//         brands: [
+//           {
+//             lp_brand_id: 'brand1',
+//             name: 'Moving Company 1',
+//             logo_url: 'https://example.com/logo1.png',
+//             tcpa: 'TCPA disclaimer for Company 1'
+//           },
+//           {
+//             lp_brand_id: 'brand2',
+//             name: 'Moving Company 2',
+//             logo_url: 'https://example.com/logo2.png',
+//             tcpa: 'TCPA disclaimer for Company 2'
+//           },
+//           // Add more simulated brands as needed
+//         ]
+//       };
+//       console.log('Using Mock API Response:', responseData);
+//     } else {
+//       // Make the actual API request 
+//       const response = await fetch(apiUrl, {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify(payload),
+//       }); 
+    
+//       // Check API response status
+//       if (!response.ok) {
+//         console.error(`API Error: ${response.statusText}`);
+//         return res.status(502).json({
+//           error: 'API request failed',
+//           details: response.statusText,
+//           status: response.status,
+//         });
+//       }
+
+//       responseData = await response.json();
+//       console.log('API Response:', responseData);
+//     }
+
+//     // Return the API response to the client
+//     res.json(responseData);
+//   } catch (error) {
+//     console.error('Server Error:', error);
+//     res.status(500).json({
+//       error: 'Failed to fetch movers',
+//       message: error.message,
+//       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+//     });
+//   }
+// });
 app.post('/proxy', validateRequest, async (req, res) => {
   // Check validation results
   const errors = validationResult(req);
@@ -91,7 +190,7 @@ app.post('/proxy', validateRequest, async (req, res) => {
         lp_campaign_key: campaignKey,
       },
       mode: {
-        lp_test: USE_MOCK_API, // Uses the environment variable
+        lp_test: USE_MOCK_API,
       },
       lead: {
         zip_code,
@@ -111,7 +210,10 @@ app.post('/proxy', validateRequest, async (req, res) => {
       // Simulate API response
       responseData = {
         results: 'success',
-        brands: [
+      };
+      
+      if (USE_AFFILIATES) {
+        responseData.brands = [
           {
             lp_brand_id: 'brand1',
             name: 'Moving Company 1',
@@ -124,9 +226,9 @@ app.post('/proxy', validateRequest, async (req, res) => {
             logo_url: 'https://example.com/logo2.png',
             tcpa: 'TCPA disclaimer for Company 2'
           },
-          // Add more simulated brands as needed
-        ]
-      };
+        ];
+      }
+      
       console.log('Using Mock API Response:', responseData);
     } else {
       // Make the actual API request 
@@ -149,6 +251,11 @@ app.post('/proxy', validateRequest, async (req, res) => {
       }
 
       responseData = await response.json();
+      
+      if (!USE_AFFILIATES) {
+        delete responseData.brands;
+      }
+      
       console.log('API Response:', responseData);
     }
 
